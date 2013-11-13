@@ -2,26 +2,34 @@ package com.ptibiscuit.igates.data;
 
 import java.util.ArrayList;
 import org.bukkit.Location;
+import org.bukkit.World;
+
+import com.ptibiscuit.igates.Plugin;
 
 public class Volume {
 	private Location first;
 	private Location end;
+	private World world = null;
+	public int maxx, minx, maxy, miny, maxz, minz;
 	
 	public Volume(Location f, Location e)
 	{
-		this.first = f;
-		this.end = e;
+		first = f;
+		end = e;
+		if (first != null) { 
+			world = first.getWorld();
+			maxx = (first.getBlockX() > end.getBlockX()) ? first.getBlockX() : end.getBlockX();
+			minx = (first.getBlockX() < end.getBlockX()) ? first.getBlockX() : end.getBlockX();
+			maxy = (first.getBlockY() > end.getBlockY()) ? first.getBlockY() : end.getBlockY();
+			miny = (first.getBlockY() < end.getBlockY()) ? first.getBlockY() : end.getBlockY();
+			maxz = (first.getBlockZ() > end.getBlockZ()) ? first.getBlockZ() : end.getBlockZ();
+			minz = (first.getBlockZ() < end.getBlockZ()) ? first.getBlockZ() : end.getBlockZ();
+		}
 	}
 	
 	public ArrayList<Location> getBlocks()
 	{
 		ArrayList<Location> locs = new ArrayList<Location>();
-		int maxx = (first.getBlockX() > end.getBlockX()) ? first.getBlockX() : end.getBlockX();
-		int minx = (first.getBlockX() < end.getBlockX()) ? first.getBlockX() : end.getBlockX();
-		int maxy = (first.getBlockY() > end.getBlockY()) ? first.getBlockY() : end.getBlockY();
-		int miny = (first.getBlockY() < end.getBlockY()) ? first.getBlockY() : end.getBlockY();
-		int maxz = (first.getBlockZ() > end.getBlockZ()) ? first.getBlockZ() : end.getBlockZ();
-		int minz = (first.getBlockZ() < end.getBlockZ()) ? first.getBlockZ() : end.getBlockZ();
 		for (int fy = miny;fy <= maxy;fy++)
 		{
 			for (int fx = minx;fx <= maxx;fx++)
@@ -37,22 +45,15 @@ public class Volume {
 	
 	public boolean isIn(Location l, double offset)
 	{
-		
-		double maxx = ((first.getBlockX() > end.getBlockX()) ? first.getBlockX() : end.getBlockX()) + offset;
-		double minx = ((first.getBlockX() < end.getBlockX()) ? first.getBlockX() : end.getBlockX()) - offset;
-		double maxy = ((first.getBlockY() > end.getBlockY()) ? first.getBlockY() : end.getBlockY()) + offset;
-		double miny = ((first.getBlockY() < end.getBlockY()) ? first.getBlockY() : end.getBlockY()) - offset;
-		double maxz = ((first.getBlockZ() > end.getBlockZ()) ? first.getBlockZ() : end.getBlockZ()) + offset;
-		double minz = ((first.getBlockZ() < end.getBlockZ()) ? first.getBlockZ() : end.getBlockZ()) - offset;
-		if ((l.getX() >= minx && l.getX() < maxx + 1) && (l.getY() >= miny && l.getY() < maxy + 1) && (l.getZ() >= minz && l.getZ() < maxz + 1))
-			return true;
-		
-		/*for (Location lC : getBlocks())
-		{
-			if (l.getWorld() == lC.getWorld() && l.getBlockX() == lC.getBlockX() && lC.getBlockY() == l.getBlockY() && lC.getBlockZ() == l.getBlockZ())
-				return true;
-		}*/
-		return false;
+		// If ANY location axis is outside the same portal axis, abort immediately (fastest method)
+		// (it's most likely that the X/Z will be more helpful, so check them first)
+		// !!WARNING!! With this method, "offset" no longer works (but was never used anyway)
+		if (l.getBlockX() < minx || l.getBlockX() > maxx) return false;
+		if (l.getBlockZ() < minz || l.getBlockZ() > maxz) return false;
+		if (l.getBlockY() < miny || l.getBlockY() > maxy) return false;
+
+		// Location is within the portal area
+		return true;
 	}
 	
 	public boolean isIn(Location l) {
@@ -65,6 +66,15 @@ public class Volume {
 
 	public void setFirst(Location first) {
 		this.first = first;
+		if ((first != null) && (end != null)) { 
+			world = first.getWorld();
+			maxx = (first.getBlockX() > end.getBlockX()) ? first.getBlockX() : end.getBlockX();
+			minx = (first.getBlockX() < end.getBlockX()) ? first.getBlockX() : end.getBlockX();
+			maxy = (first.getBlockY() > end.getBlockY()) ? first.getBlockY() : end.getBlockY();
+			miny = (first.getBlockY() < end.getBlockY()) ? first.getBlockY() : end.getBlockY();
+			maxz = (first.getBlockZ() > end.getBlockZ()) ? first.getBlockZ() : end.getBlockZ();
+			minz = (first.getBlockZ() < end.getBlockZ()) ? first.getBlockZ() : end.getBlockZ();
+		}
 	}
 
 	public Location getEnd() {
@@ -73,5 +83,18 @@ public class Volume {
 
 	public void setEnd(Location end) {
 		this.end = end;
+		if ((first != null) && (end != null)) { 
+			world = first.getWorld();
+			maxx = (first.getBlockX() > end.getBlockX()) ? first.getBlockX() : end.getBlockX();
+			minx = (first.getBlockX() < end.getBlockX()) ? first.getBlockX() : end.getBlockX();
+			maxy = (first.getBlockY() > end.getBlockY()) ? first.getBlockY() : end.getBlockY();
+			miny = (first.getBlockY() < end.getBlockY()) ? first.getBlockY() : end.getBlockY();
+			maxz = (first.getBlockZ() > end.getBlockZ()) ? first.getBlockZ() : end.getBlockZ();
+			minz = (first.getBlockZ() < end.getBlockZ()) ? first.getBlockZ() : end.getBlockZ();
+		}
+	}
+	
+	public World getWorld() {
+		return world;
 	}
 }

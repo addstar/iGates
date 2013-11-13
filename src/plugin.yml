@@ -1,6 +1,6 @@
 name: iGates
 main: com.ptibiscuit.igates.Plugin
-version: 0.6.1
+version: 0.6.2-adam
 depend: [PluginsBaker]
 softdepend: [Multiverse-Core]
 authors:
@@ -24,3 +24,7 @@ commands:
  igclearfroms:
   description: ...
   usage: /igclearfroms ...
+ igdump:
+  description: ...
+  usage: /igdump ...
+  

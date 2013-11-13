@@ -20,6 +20,10 @@ public class YamlData implements IData {
 
 	private ArrayList<Portal> portals = new ArrayList<Portal>();
 	private FileConfiguration config;
+	private Plugin plug;
+	public YamlData(Plugin instance) {
+		plug = instance;
+	}
 	
 	@Override
 	public Portal createPortal(String tag, Location to, ArrayList<Volume> froms, FillType fillType) {
@@ -29,7 +33,7 @@ public class YamlData implements IData {
 		config.set("portals." + portal.getTag() + ".yaw", to.getYaw());
 		config.set("portals." + portal.getTag() + ".pitch", to.getPitch());
 		config.set("portals." + portal.getTag() + ".filltype", fillType.getName());
-		Plugin.instance.saveConfig();
+		plug.saveConfig();
 		
 		portals.add(portal);
 		return portal;
@@ -37,7 +41,7 @@ public class YamlData implements IData {
 
 	@Override
 	public void loadPortals() {
-		config = Plugin.instance.getConfig();
+		config = plug.getConfig();
 		if (config.getConfigurationSection("portals") != null)
 		{
 			for (Entry<String, Object> entry : config.getConfigurationSection("portals").getValues(false).entrySet())
@@ -62,7 +66,7 @@ public class YamlData implements IData {
 				FillType filltype = FillType.getFillType(values.getString("filltype"));
 				if (filltype == null)
 				{
-					Plugin.instance.getMyLogger().severe(tag + " is in an old portal's configuration, modify it !");
+					plug.getMyLogger().severe(tag + " is in an old portal's configuration, modify it !");
 				}
 				// Loader les froms
 				ArrayList<Volume> froms = new ArrayList<Volume>();
@@ -89,7 +93,7 @@ public class YamlData implements IData {
 	@Override
 	public void deletePortal(Portal portal) {
 		config.set("portals." + portal.getTag(), null);
-		Plugin.instance.saveConfig();
+		plug.saveConfig();
 		portals.remove(portal);
 	}
 	
@@ -108,7 +112,7 @@ public class YamlData implements IData {
 	@Override
 	public void setActive(Portal portal, boolean active) {
 		config.set("portals." + portal.getTag() + ".enable", active);
-		Plugin.instance.saveConfig();
+		plug.saveConfig();
 		
 		portal.setActive(active);
 	}
@@ -117,7 +121,7 @@ public class YamlData implements IData {
 	public void setPrice(Portal p, int price)
 	{
 		config.set("portals." + p.getTag() + ".price", price);
-		Plugin.instance.saveConfig();
+		plug.saveConfig();
 	}
 
 	@Override
@@ -125,7 +129,7 @@ public class YamlData implements IData {
 		config.set("portals." + portal.getTag() + ".to", this.convertLocationToString(l));
 		config.set("portals." + portal.getTag() + ".yaw", l.getYaw());
 		config.set("portals." + portal.getTag() + ".pitch", l.getPitch());
-		Plugin.instance.saveConfig();
+		plug.saveConfig();
 		
 		portal.setToPoint(l);
 	}
@@ -133,7 +137,7 @@ public class YamlData implements IData {
 	@Override
 	public void setFillType(Portal portal, FillType filltype) {
 		config.set("portals." + portal.getTag() + ".filltype", filltype.getName());
-		Plugin.instance.saveConfig();
+		plug.saveConfig();
 		
 		portal.setFillType(filltype);
 	}
@@ -149,7 +153,7 @@ public class YamlData implements IData {
 			fin.add(to);
 		}
 		config.set("portals." + portal.getTag() + ".froms", fin);
-		Plugin.instance.saveConfig();
+		plug.saveConfig();
 		
 		portal.setFromPoints(froms);
 	}

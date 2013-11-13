@@ -1,6 +1,5 @@
 package com.ptibiscuit.igates.listeners;
 
-import com.ptibiscuit.framework.PermissionHelper;
 import com.ptibiscuit.igates.Plugin;
 import com.ptibiscuit.igates.data.Volume;
 import java.util.HashMap;
@@ -16,11 +15,16 @@ public class VolumeSelectionManager implements Listener {
 	private Material selectionTools = Material.WOOD_AXE;
 	private HashMap<String, Volume> selections = new HashMap<String, Volume>();
 	
+	private Plugin plug;
+	public VolumeSelectionManager(Plugin instance) {
+		plug = instance;
+	}
+
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerInteract(PlayerInteractEvent e)
 	{
 		if (e.getItem() != null && e.getItem().getType() == selectionTools && e.getClickedBlock() != null
-				  && Plugin.instance.getPermissionHandler().has(e.getPlayer(), "make_selection", true))
+				  && plug.getPermissionHandler().has(e.getPlayer(), "make_selection", true))
 		{
 			Volume v = this.selections.get(e.getPlayer().getName());
 			if (v == null)
@@ -32,14 +36,14 @@ public class VolumeSelectionManager implements Listener {
 			if (e.getAction() == Action.RIGHT_CLICK_BLOCK)
 			{
 				v.setEnd(l);
-				if (Plugin.instance.getConfig().getBoolean("config.display_message_selection", true))
-					Plugin.instance.sendPreMessage(e.getPlayer(), "second_point_set");
+				if (plug.getConfig().getBoolean("config.display_message_selection", true))
+					plug.sendPreMessage(e.getPlayer(), "second_point_set");
 			}
 			else if (e.getAction() == Action.LEFT_CLICK_BLOCK)
 			{
 				v.setFirst(l);
-				if (Plugin.instance.getConfig().getBoolean("config.display_message_selection", true))
-					Plugin.instance.sendPreMessage(e.getPlayer(), "first_point_set");
+				if (plug.getConfig().getBoolean("config.display_message_selection", true))
+					plug.sendPreMessage(e.getPlayer(), "first_point_set");
 			}
 		}
 	}

@@ -25,13 +25,11 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 
 public class Plugin extends JavaPluginEnhancer implements Listener {
 	public static Plugin instance;
-	
 	private IData data;
-	private VolumeSelectionManager vsm = new VolumeSelectionManager();
-	private SpreadBlockListener sbl = new SpreadBlockListener();
-	private PlayerListener pm = new PlayerListener();
+	private VolumeSelectionManager vsm = new VolumeSelectionManager(this);
+	private SpreadBlockListener sbl = new SpreadBlockListener(this);
+	private PlayerListener pm = new PlayerListener(this);
 	private Economy economy;
-	
 	
 	@Override
 	public void onConfigurationDefault(FileConfiguration c) {
@@ -43,12 +41,12 @@ public class Plugin extends JavaPluginEnhancer implements Listener {
 	@Override
 	public void onEnable() {
 		this.setup(ChatColor.AQUA + "[iGates]", "igates", true);
-		this.instance = this;
 		this.myLog.startFrame();
 		this.myLog.addInFrame("iGates by Ptibiscuit");
 		this.myLog.addCompleteLineInFrame();
 		
-		this.data = new YamlData();
+		this.instance = this;
+		this.data = new YamlData(this);
 		// On fait attention à Multiverse, au cas où.
 		data.loadPortals();
 		this.myLog.addInFrame(data.getPortals().size() + " portals loaded !");
@@ -120,12 +118,14 @@ public class Plugin extends JavaPluginEnhancer implements Listener {
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		try
 		{
+			Player p = null;
 			if (!(sender instanceof Player))
 			{
-				this.sendPreMessage(sender, "need_be_player");
-				return true;
+				//this.sendPreMessage(sender, "need_be_player");
+				//return true;
+			} else {
+				p = (Player) sender;
 			}
-			Player p = (Player) sender;
 			
 			if (label.equalsIgnoreCase("igcreate"))
 			{
@@ -281,6 +281,17 @@ public class Plugin extends JavaPluginEnhancer implements Listener {
 					return true;
 				}
 			}
+			else if (label.equalsIgnoreCase("igdump"))
+			{
+				for (Portal portal : this.data.getPortals())
+				{
+					for (Volume v : portal.getFromPoints()) {
+						this.myLog.log("  - Volume: " + v.getWorld().getName() + " " + v.getFirst().toString() + " - " + v.getEnd().toString());
+						this.myLog.log("  - Min/Max: " + v.minx + "," + v.miny + "," + v.minz + " - " + v.maxx + "," + v.maxy + "," + v.maxz);
+						this.myLog.log(""); 
+					}
+				}
+			}
 		}
 		catch (ArrayIndexOutOfBoundsException e)
 		{
@@ -293,8 +304,7 @@ public class Plugin extends JavaPluginEnhancer implements Listener {
 	{
 		for (Portal p : this.data.getPortals())
 		{
-			if (p.isIn(l, offset) && p.isActive())
-				return p;
+			if ((p.isActive()) && (p.isIn(l, offset))) return p;
 		}
 		return null;
 	}

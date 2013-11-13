@@ -1,7 +1,10 @@
 package com.ptibiscuit.igates.listeners;
 
+import com.ptibiscuit.framework.permission.PermissionHandler;
 import com.ptibiscuit.igates.Plugin;
 import com.ptibiscuit.igates.data.Portal;
+
+import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -9,12 +12,17 @@ import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
 
 public class SpreadBlockListener implements Listener {
+	private Plugin plug;
+	public SpreadBlockListener(Plugin instance) {
+		plug = instance;
+	}
+
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockFromTo(BlockFromToEvent e)
 	{
-		if (Plugin.instance.getConfig().getBoolean("config.retain_liquid"))
+		if (plug.getConfig().getBoolean("config.retain_liquid"))
 		{
-			for (Portal p : Plugin.instance.getData().getPortals())
+			for (Portal p : plug.getData().getPortals())
 			{
 				if (p.isIn(e.getBlock().getLocation()) && !p.isIn(e.getToBlock().getLocation()))
 				{
@@ -28,12 +36,14 @@ public class SpreadBlockListener implements Listener {
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onBlockPhysics(BlockPhysicsEvent e)
 	{
-		for (Portal p : Plugin.instance.getData().getPortals())
-		{
-			if (p.isIn(e.getBlock().getLocation()))
+		if ((e.getChangedType() == Material.WATER) || (e.getChangedType() == Material.LAVA)) {
+			for (Portal p : plug.getData().getPortals())
 			{
-				e.setCancelled(true);
-				return;
+				if (p.isIn(e.getBlock().getLocation()))
+				{
+					e.setCancelled(true);
+					return;
+				}
 			}
 		}
 	}

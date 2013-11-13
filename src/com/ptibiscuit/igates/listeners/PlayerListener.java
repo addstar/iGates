@@ -13,28 +13,35 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
 public class PlayerListener implements Listener {
+
+	private Plugin plug;
+	private PermissionHandler perm = null;
+	public PlayerListener(Plugin instance) {
+		plug = instance;
+	}
+	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerMove(PlayerMoveEvent e) {
 		if (e.isCancelled()) { return; }
-		Player p = e.getPlayer();
-		Plugin plug = Plugin.instance;
-		if (!e.getFrom().getBlock().getLocation().equals(e.getTo().getBlock().getLocation()))
-		{
+
+		// Ignore if the player didnt move to a new block
+		if (e.getFrom().getBlockX() != e.getTo().getBlockX()
+			|| e.getFrom().getBlockY() != e.getTo().getBlockY()
+			|| e.getFrom().getBlockZ() != e.getTo().getBlockZ()) {
+			
 			Portal portal = plug.getPortalByPosition(e.getTo());
-			if (portal != null)
-			{
-				// Il se trouve effectivement dans un portal !
-				PermissionHandler perm = plug.getPermissionHandler();
+			if (portal != null) {
+				Player p = e.getPlayer();
+
+				perm = plug.getPermissionHandler();
 				// Soit il possède la permission use, soit il possède la permissions spéciale. =)
-				if (perm.has(e.getPlayer(), "portal.use", false) || perm.has(e.getPlayer(), "portal.use." + portal.getFillType().getName().toLowerCase(), false))
-				{
+				if (perm.has(p, "portal.use", false) || perm.has(p, "portal.use." + portal.getFillType().getName().toLowerCase(), false)) {
 					e.setCancelled(!portal.teleportPlayer(p));
 				} else {
-					Plugin.instance.sendPreMessage(e.getPlayer(), "cant_do");
+					plug.sendPreMessage(p, "cant_do");
 					e.setCancelled(true);
 					return;
 				}
@@ -47,7 +54,7 @@ public class PlayerListener implements Listener {
 	@EventHandler(priority=EventPriority.NORMAL)
 	public void onPlayerUsePortal(PlayerPortalEvent e) {
 		if (e.getCause() == TeleportCause.END_PORTAL || e.getCause() == TeleportCause.NETHER_PORTAL) {
-			Portal p = Plugin.instance.getPortalByPosition(e.getFrom(), 0.7);
+			Portal p = plug.getPortalByPosition(e.getFrom(), 0.7);
 			if (p != null) {
 				e.setCancelled(true);
 			}
